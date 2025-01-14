@@ -5,7 +5,7 @@
 ## MakeFile dans le fichier root
 ##
 
-NAME = libhashtable.a
+NAME = sudo
 
 CFLAGS += -g -Wall -Wextra -W -Iinclude -Isrc/lib/include
 
