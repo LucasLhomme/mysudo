@@ -4,7 +4,6 @@
 ** File description:
 ** my.h BOOTCAMP
 */
-#include "hashtable.h"
 #ifndef MY_H_
     #define MY_H_
 
