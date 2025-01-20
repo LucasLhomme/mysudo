@@ -5,11 +5,11 @@
 ## MakeFile dans le fichier root
 ##
 
-NAME = sudo
+NAME = my_sudo
+DEBUG = -g
+CFLAGS += -Wall -Wextra -W -Iinclude -Isrc/lib/include
 
-CFLAGS += -g -Wall -Wextra -W -Iinclude -Isrc/lib/include
-
-SRC =	./src/my_sudo.c
+SRC =	./src/my_sudo.c\
 
 OBJ  	=	 $(SRC:.c=.o)
 
@@ -26,8 +26,19 @@ clean || clear:
 		rm -f $(OBJ)
 
 fclean:
-		rm -f $(NAME) $(OBJ) libmy.a
+		rm -f $(NAME) debug $(OBJ) libmy.a
 
 re:
 		$(MAKE) fclean
 		$(MAKE) all
+
+debug: 	$(DEBUG)
+
+$(DEBUG):	$(OBJ)
+		$(MAKE) -C src/lib all
+		gcc -g $(CFLAGS) -o debug $(OBJ) libmy.a
+
+redebug:
+		$(MAKE) fclean
+		$(MAKE) debug
+
