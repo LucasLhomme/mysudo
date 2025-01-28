@@ -15,6 +15,7 @@ OBJ  	=	 $(SRC:.c=.o)
 
 
 all: 	$(NAME)
+		$(MAKE) clean
 
 $(NAME):	$(OBJ)
 		$(MAKE) -C src/lib all
@@ -31,6 +32,7 @@ fclean:
 re:
 		$(MAKE) fclean
 		$(MAKE) all
+		$(MAKE) clean
 
 debug: 	$(DEBUG)
 
