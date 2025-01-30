@@ -5,44 +5,99 @@
 ** the main file
 */
 
-#include "lib.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <crypt.h>
 
-char **parse_sudoers(void)
+char *extract_username(char *line, int uid)
 {
-    char user[50];
-    FILE *file = fopen("/etc/sudoers", "r");
+    char *username = strtok(line, ":");
+    char *uid_str = NULL;
+
+    strtok(NULL, ":");
+    uid_str = strtok(NULL, ":");
+    if (uid_str != NULL && atoi(uid_str) == uid)
+        return username;
+    return NULL;
+}
+
+char *get_username(int uid)
+{
+    FILE *file = fopen("/etc/passwd", "r");
     char line[256];
-    char **users = malloc(256 * sizeof(char *));
-    int i = 0;
+    char *username;
 
     if (file == NULL)
         return NULL;
     while (fgets(line, sizeof(line), file)) {
-        if (line[0] == '#' || line[0] == '\n' || line[0] == 'D')
-            continue;
-    if (sscanf(line, "%49s ALL=(ALL) ALL", user) == 1) {
-            users[i] = strdup(user);
-            i++;
+        username = extract_username(line, uid);
+        if (username != NULL) {
+            fclose(file);
+            return username;
         }
-        my_printf("%s\n", user);
     }
     fclose(file);
-    return users;
+    return NULL;
+}
+
+int is_user_in_sudoers(char *user)
+{
+    FILE *file = fopen("/etc/sudoers", "r");
+    char line[256];
+
+    if (!file)
+        return (0);
+    while (fgets(line, sizeof(line), file)) {
+        if (strstr(line, user) && strstr(line, "ALL=(ALL) ALL")) {
+            fclose(file);
+            return (1);
+        }
+    }
+    fclose(file);
+    return (0);
+}
+
+int verify_password(char *user)
+{
+    char *entered_pass = "$6$xyz$dummyhash";
+    char *stored_pass[256];
+    int attempts = 0;
+
+    while (attempts < 3) {
+        write(1, "[my_sudo] password: ", 20);
+        entered_pass = getpass("");
+        if (!strcmp(crypt(entered_pass, stored_pass), stored_pass))
+            return (0);
+        attempts++;
+        write(2, "Incorrect password. Attempts left: ", 35);
+        dprintf(2, "%d\n", 3 - attempts);
+    }
+    return (-1);
 }
 
 int main(int argc, char **argv)
 {
-    char **users = malloc(256 * sizeof(char *));
+    uid_t uid = getuid();
+    char *user = get_username(uid);
 
-    if (users == NULL)
-        return 84;
-    if (argc > 1 && argv[1][0] == '-' && argv[1][1] == 'h'
-        && argv[1][2] == '\0') {
-        my_printf("usage: ./my_sudo -h\n");
-        my_printf("usage: [-ugEs] [command [args ...]]\n");
+    if (!user || !is_user_in_sudoers(user)) {
+        dprintf(2, "User is not in sudoers.\n");
+        return (84);
     }
-    users = parse_sudoers();
-    if (users == NULL)
-        return 84;
+    if (verify_password(user) != 0) {
+        write(2, "Authentication failed.\n", 24);
+        return (84);
+    }
+    if (setuid(0) != 0) {
+        perror("setuid");
+        return (84);
+    }
+    execvp(argv[1], &argv[1]);
+    perror("execvp");
+    return (84);
 }

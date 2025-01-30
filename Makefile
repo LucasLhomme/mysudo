@@ -19,7 +19,9 @@ all: 	$(NAME)
 
 $(NAME):	$(OBJ)
 		$(MAKE) -C src/lib all
-		gcc $(CFLAGS) -o $(NAME) $(OBJ) libmy.a
+		gcc $(CFLAGS) -o $(NAME) $(OBJ) libmy.a -lcrypt
+		sudo chown root:root my_sudo
+		sudo chmod u+s my_sudo
 		rm libmy.a
 
 clean || clear:
@@ -43,4 +45,3 @@ $(DEBUG):	$(OBJ)
 redebug:
 		$(MAKE) fclean
 		$(MAKE) debug
-
