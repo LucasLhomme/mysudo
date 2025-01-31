@@ -63,10 +63,14 @@ int main(int argc, char **argv)
     printf("\n%s\n", user);
     if (verify_password(user) == 0) {
         printf("Authentication successful!\n");
-    } else
+    } else {
         printf("Authentication failed.\n");
+        return 0;
+    }
+    printf("ça crash là");
     if (setuid(0) != 0)
         return (84);
+    printf("ou là");
     execvp(argv[1], &argv[1]);
     return (84);
 }

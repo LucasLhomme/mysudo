@@ -6,15 +6,9 @@
 */
 
 #include "lib.h"
-#include <crypt.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
 #include "my.h"
 
-node_t *create_node(char *hashed_pass)
+node_t *create_node(char *hashed_pwd)
 {
     node_t *node = malloc(sizeof(node_t));
     char *dollar1 = NULL;
@@ -23,14 +17,14 @@ node_t *create_node(char *hashed_pass)
 
     if (!node)
         return NULL;
-    dollar1 = strchr(hashed_pass, '$');
+    dollar1 = strchr(hashed_pwd, '$');
     dollar2 = strchr(dollar1 + 1, '$');
     dollar3 = strchr(dollar2 + 1, '$');
     if (!dollar1 || !dollar2 || !dollar3)
         return NULL;
     node->id = strndup(dollar1 + 1, dollar2 - dollar1 - 1);
     node->salt = strndup(dollar1, dollar3 - dollar1 + 1);
-    node->pwd = strdup(hashed_pass);
+    node->pwd = strdup(hashed_pwd);
     printf("id: %s\nsalt: %s\nhash: %s\n", node->id, node->salt, node->pwd);
     return node;
 }
@@ -38,13 +32,13 @@ node_t *create_node(char *hashed_pass)
 node_t *parse_line(char *line, char *user)
 {
     char *username = strtok(line, ":");
-    char *hashed_pass = NULL;
+    char *hashed_pwd = NULL;
 
     if (username && strcmp(username, user) == 0) {
-        hashed_pass = strtok(NULL, ":");
-        if (!hashed_pass || hashed_pass[0] == '\0' || hashed_pass[0] == '!')
+        hashed_pwd = strtok(NULL, ":");
+        if (!hashed_pwd || hashed_pwd[0] == '\0' || hashed_pwd[0] == '!')
             return NULL;
-        return create_node(hashed_pass);
+        return create_node(hashed_pwd);
     }
     return NULL;
 }
@@ -74,7 +68,7 @@ static char *get_input(void)
 
 int check_password(node_t *node, char *password)
 {
-    char *hashed_input = crypt(password, node->salt);
+    char *hashed_input = crypt(password, node->pwd);
 
     if (hashed_input && strcmp(hashed_input, node->pwd) == 0) {
         printf("hash return :%s\nhash attendu:%s", hashed_input, node->pwd);
