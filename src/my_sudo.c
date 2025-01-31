@@ -61,7 +61,7 @@ int main(int argc, char **argv)
         return 0;
     }
     printf("\n%s\n", user);
-    if (verify_password("jawed") == 0) {
+    if (verify_password(user) == 0) {
         printf("Authentication successful!\n");
     } else
         printf("Authentication failed.\n");
