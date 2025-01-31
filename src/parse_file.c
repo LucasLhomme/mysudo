@@ -25,7 +25,6 @@ node_t *create_node(char *hashed_pwd)
     node->id = strndup(dollar1 + 1, dollar2 - dollar1 - 1);
     node->salt = strndup(dollar1, dollar3 - dollar1 + 1);
     node->pwd = strdup(hashed_pwd);
-    printf("id: %s\nsalt: %s\nhash: %s\n", node->id, node->salt, node->pwd);
     return node;
 }
 
@@ -71,10 +70,8 @@ int check_password(node_t *node, char *password)
     char *hashed_input = crypt(password, node->pwd);
 
     if (hashed_input && strcmp(hashed_input, node->pwd) == 0) {
-        printf("hash return :%s\nhash attendu:%s", hashed_input, node->pwd);
         return 1;
     }
-    printf("hash return :%s\nhash attendu:%s\n", hashed_input, node->pwd);
     return 0;
 }
 

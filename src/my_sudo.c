@@ -48,29 +48,40 @@ char *get_username(int uid)
     return result;
 }
 
+int handle_error(int argc)
+{
+    if (argc < 2)
+        return 84;
+    return 0;
+}
+
+int execute_help(void)
+{
+    my_printf("usage: ./my_sudo -h\n");
+    my_printf("usage: [-ugEs] [command [args ...]]\n");
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     uid_t uid = getuid();
     char *user = get_username(uid);
 
-    printf("\n%s\n", user);
+    if (handle_error(argc) == 84)
+        return 84;
     if (argc > 1 && argv[1][0] == '-' && argv[1][1] == 'h'
         && argv[1][2] == '\0') {
-        my_printf("usage: ./my_sudo -h\n");
-        my_printf("usage: [-ugEs] [command [args ...]]\n");
+        execute_help();
         return 0;
     }
-    printf("\n%s\n", user);
     if (verify_password(user) == 0) {
         printf("Authentication successful!\n");
     } else {
         printf("Authentication failed.\n");
         return 0;
     }
-    printf("ça crash là");
     if (setuid(0) != 0)
-        return (84);
-    printf("ou là");
+        return 84;
     execvp(argv[1], &argv[1]);
-    return (84);
+    return 0;
 }
