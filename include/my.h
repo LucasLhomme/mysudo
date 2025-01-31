@@ -16,7 +16,7 @@ int extract_hash(node_t *node, char *hashed_pass);
 char *find_password(FILE *file, const char *user);
 node_t *get_password(const char *user);
 int check_password(node_t *node, char *password);
-int verify_password(const char *user);
+int verify_password(char *user);
 char *extract_username(char *line, int uid);
 char *get_username(int uid);
 int is_user_in_sudoers(char *user);

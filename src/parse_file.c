@@ -13,13 +13,11 @@
 #include <sys/types.h>
 #include "my.h"
 
-static node_t *get_hashed_password(const char *user)
+node_t *get_hashed_password(char *user)
 {
     FILE *file = fopen("/etc/shadow", "r");
-    char line[256];
-    char *username = NULL;
-    char *hashed_pass = NULL;
-    node_t *node = NULL;
+    char line[256], *username, *hashed_pass;
+    node_t *node;
 
     if (!file)
         return NULL;
@@ -34,52 +32,52 @@ static node_t *get_hashed_password(const char *user)
             if (!node)
                 return NULL;
             char *dollar1 = strchr(hashed_pass, '$');
-            char *dollar2 = dollar1 ? strchr(dollar1 + 1, '$') : NULL;
-            char *dollar3 = dollar2 ? strchr(dollar2 + 1, '$') : NULL;
-            if (!dollar1 || !dollar2 || !dollar3)
-                return NULL;
+            if (!dollar1) return NULL;
+            char *dollar2 = strchr(dollar1 + 1, '$');
+            if (!dollar2) return NULL;
+            char *dollar3 = strchr(dollar2 + 1, '$');
+            if (!dollar3) return NULL;
             node->id = strndup(dollar1 + 1, dollar2 - dollar1 - 1);
             node->salt = strndup(dollar1, dollar3 - dollar1 + 1);
             node->pwd = strdup(hashed_pass);
+            printf("id: %s\nsalt: %s\nhash: %s\n", node->id, node->salt, node->pwd);
+
             return node;
-            printf("\nid:%s\nsalt:%s\nhash:%s\n", node->id, node->pwd, node->salt);
         }
     }
     fclose(file);
     return NULL;
 }
 
-static void free_node(node_t *node)
+int verify_password(char *user)
 {
+    char *password;
+    node_t *node = get_hashed_password(user);
+    
     if (!node)
-        return;
+        return -1;
+    int attempts = 0;
+    while (attempts < 3) {
+        printf("[my_sudo] password: ");
+        password = getpass("");
+        printf("%s\n", password);
+        char *hashed_input = crypt(password, node->salt);
+        if (hashed_input && strcmp(hashed_input, node->pwd) == 0) {
+            printf("hash return :%s\nhash attendu:%s", hashed_input, node->pwd);
+            free(node->id);
+            free(node->salt);
+            free(node->pwd);
+            free(node);
+            return 0;
+        }
+        printf("hash return :%s\nhash attendu:%s\n", hashed_input, node->pwd);
+        attempts++;
+        printf("Incorrect password. Attempts left: %d\n", 3 - attempts);
+    }
     free(node->id);
     free(node->salt);
     free(node->pwd);
     free(node);
-}
-
-int verify_password(const char *user)
-{
-    char *password = NULL;
-    node_t *node = get_hashed_password(user);
-    int attempts = 0;
-
-    if (!node)
-        return -1;
-    while (attempts < 3) {
-        printf("[my_sudo] password: ");
-        password = getpass("");
-        if (!password)
-            break;
-        printf("\nmdp:%s", password);
-        if (strcmp(crypt(password, node->salt), node->pwd) == 0) {
-            free_node(node);
-            return 0;
-        }
-        attempts++;
-        printf("Incorrect password. Attempts left: %d\n", 3 - attempts);
-    }
-    free_node(node);
-    return -1;
-}
+    
+    return 84;
+} 
