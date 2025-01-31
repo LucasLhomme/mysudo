@@ -9,7 +9,8 @@ NAME = my_sudo
 DEBUG = -g
 CFLAGS += -Wall -Wextra -W -Iinclude -Isrc/lib/include
 
-SRC =	./src/my_sudo.c\
+SRC =	./src/my_sudo.c \
+		./src/parse_file.c \
 
 OBJ  	=	 $(SRC:.c=.o)
 
@@ -20,6 +21,8 @@ all: 	$(NAME)
 $(NAME):	$(OBJ)
 		$(MAKE) -C src/lib all
 		gcc $(CFLAGS) -o $(NAME) $(OBJ) libmy.a -lcrypt
+		sudo chown root:root my_sudo
+		sudo chmod u+s my_sudo
 		rm libmy.a
 
 clean || clear:

@@ -13,6 +13,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <crypt.h>
+#include "lib.h"
+#include "my.h"
 
 char *extract_username(char *line, int uid)
 {
@@ -62,39 +64,25 @@ int is_user_in_sudoers(char *user)
     return (0);
 }
 
-int verify_password(char *user)
-{
-    char *entered_pass = "$6$xyz$dummyhash";
-    char *stored_pass[256];
-    int attempts = 0;
-
-    while (attempts < 3) {
-        printf("[my_sudo] password: ");
-        entered_pass = getpass("");
-        if (!strcmp(crypt(entered_pass, stored_pass), stored_pass))
-            return (0);
-        attempts++;
-        printf("Incorrect password. Attempts left: %d\n", 3 - attempts);
-    }
-    return (-1);
-}
-
 int main(int argc, char **argv)
 {
     uid_t uid = getuid();
     char *user = get_username(uid);
 
-    if (!user || !is_user_in_sudoers(user)) {
-        printf("User is not in sudoers.\n");
-        return (84);
+    if (argc > 1 && argv[1][0] == '-' && argv[1][1] == 'h'
+        && argv[1][2] == '\0') {
+        my_printf("usage: ./my_sudo -h\n");
+        my_printf("usage: [-ugEs] [command [args ...]]\n");
+        return 0;
     }
-    if (verify_password(user) != 0) {
+    if (!user || !is_user_in_sudoers(user))
+        return (84);
+    if (verify_password("jawed") == 0) {
+        printf("Authentication successful!\n");
+    } else
         printf("Authentication failed.\n");
-        return (84);
-    }
     if (setuid(0) != 0)
         return (84);
     execvp(argv[1], &argv[1]);
-    perror("execvp");
     return (84);
 }

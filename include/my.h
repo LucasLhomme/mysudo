@@ -5,15 +5,20 @@
 ** my.h BOOTCAMP
 */
 typedef struct node_s {
-    char *user;
     char *pwd;
     char *id;
     char *salt;
-    struct node_s *next;
 } node_t;
 
 #ifndef MY_H_
     #define MY_H_
-
+int extract_hash(node_t *node, char *hashed_pass);
+char *find_password(FILE *file, const char *user);
+node_t *get_password(const char *user);
+int check_password(node_t *node, char *password);
+int verify_password(const char *user);
+char *extract_username(char *line, int uid);
+char *get_username(int uid);
+int is_user_in_sudoers(char *user);
 int main(int argc, char **argv);
 #endif /* !MY_H_ */
