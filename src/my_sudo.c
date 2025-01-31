@@ -33,35 +33,19 @@ char *get_username(int uid)
     FILE *file = fopen("/etc/passwd", "r");
     char line[256];
     char *username;
+    char *result = NULL;
 
     if (file == NULL)
         return NULL;
     while (fgets(line, sizeof(line), file)) {
         username = extract_username(line, uid);
         if (username != NULL) {
-            fclose(file);
-            return username;
+            result = strdup(username);
+            break;
         }
     }
     fclose(file);
-    return NULL;
-}
-
-int is_user_in_sudoers(char *user)
-{
-    FILE *file = fopen("/etc/sudoers", "r");
-    char line[256];
-
-    if (!file)
-        return (0);
-    while (fgets(line, sizeof(line), file)) {
-        if (strstr(line, user) && strstr(line, "ALL=(ALL) ALL")) {
-            fclose(file);
-            return (1);
-        }
-    }
-    fclose(file);
-    return (0);
+    return result;
 }
 
 int main(int argc, char **argv)
@@ -69,14 +53,14 @@ int main(int argc, char **argv)
     uid_t uid = getuid();
     char *user = get_username(uid);
 
+    printf("\n%s\n", user);
     if (argc > 1 && argv[1][0] == '-' && argv[1][1] == 'h'
         && argv[1][2] == '\0') {
         my_printf("usage: ./my_sudo -h\n");
         my_printf("usage: [-ugEs] [command [args ...]]\n");
         return 0;
     }
-    if (!user || !is_user_in_sudoers(user))
-        return (84);
+    printf("\n%s\n", user);
     if (verify_password("jawed") == 0) {
         printf("Authentication successful!\n");
     } else
