@@ -12,13 +12,13 @@ typedef struct node_s {
 
 #ifndef MY_H_
     #define MY_H_
-int extract_hash(node_t *node, char *hashed_pass);
-char *find_password(FILE *file, const char *user);
-node_t *get_password(const char *user);
+node_t *get_password(char *user);
 int check_password(node_t *node, char *password);
 int verify_password(char *user);
 char *extract_username(char *line, int uid);
 char *get_username(int uid);
-int is_user_in_sudoers(char *user);
+node_t *parse_line(char *line, char *user);
+node_t *create_node(char *hashed_pass);
+char *get_username(int uid);
 int main(int argc, char **argv);
 #endif /* !MY_H_ */
