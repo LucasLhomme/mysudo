@@ -61,7 +61,7 @@ node_t *get_password(char *user)
 
 static char *get_input(void)
 {
-    printf("[my_sudo] password: ");
+    my_printf("[my_sudo] password: ");
     return getpass("");
 }
 
@@ -100,7 +100,7 @@ int verify_password(char *user)
             return 0;
         }
         attempts++;
-        printf("Incorrect password. Attempts left: %d\n", 3 - attempts);
+        my_printf("Incorrect password. Attempts left: %d\n", 3 - attempts);
     }
     free_node(node);
     return 84;

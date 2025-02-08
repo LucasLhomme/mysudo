@@ -18,7 +18,7 @@ char **parse_sudoers(void)
     char user[50];
     FILE *file = fopen("/etc/sudoers", "r");
     char line[256];
-    char **users = malloc(257 * sizeof(char *) );
+    char **users = malloc(257 * sizeof(char *));
     int i = 0;
 
     if (file == NULL || !users)

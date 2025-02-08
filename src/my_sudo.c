@@ -75,17 +75,17 @@ int main(int argc, char **argv)
         execute_help();
         return 0;
     }
-    printf("n'a pas encore créer les groupes\n");
+    my_printf("n'a pas encore créer les groupes\n");
     groups = parse_sudoers();
     if (check_group(groups, user) != 0) {
-        printf("permission denied\n");
+        my_printf("permission denied\n");
         return 84;
     }
-    printf("l'a créer\n");
+    my_printf("l'a créer\n");
     if (verify_password(user) == 0) {
-        printf("Authentication successful!\n");
+        my_printf("Authentication successful!\n");
     } else {
-        printf("Authentication failed.\n");
+        my_printf("Authentication failed.\n");
         return 0;
     }
     if (setuid(0) != 0)
