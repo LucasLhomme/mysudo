@@ -66,6 +66,7 @@ int main(int argc, char **argv)
 {
     uid_t uid = getuid();
     char *user = get_username(uid);
+    char **groups = NULL;
 
     if (handle_error(argc) == 84)
         return 84;
@@ -74,6 +75,13 @@ int main(int argc, char **argv)
         execute_help();
         return 0;
     }
+    printf("n'a pas encore créer les groupes\n");
+    groups = parse_sudoers();
+    if (check_group(groups, user) != 0) {
+        printf("permission denied\n");
+        return 84;
+    }
+    printf("l'a créer\n");
     if (verify_password(user) == 0) {
         printf("Authentication successful!\n");
     } else {

@@ -1,47 +1,102 @@
 /*
 ** EPITECH PROJECT, 2024
-** my_str_to_word_arry
+** my_str_to_word_array
 ** File description:
-** my_str_to_word_arry BOOTCAMP
+** str to word array
 */
-#include "lib.h"
 
-int isnonalphanum(char c)
+#include <stdlib.h>
+#include <stdio.h>
+
+static int my_isalphanum(const char c)
 {
-    return !isalphanum(c);
+    if ((c >= 'a' && c <= 'z') ||
+        (c >= 'A' && c <= 'Z') ||
+        (c >= '0' && c <= '9'))
+        return 1;
+    return 0;
 }
 
-int count_word(char const *str)
+static int my_isnonalphanum(const char c)
 {
-    int count = 0;
+    return !my_isalphanum(c);
+}
+
+char *allocate_word(char *str, int start, int end)
+{
+    int length = end - start;
+    char *word = malloc((length + 1) * sizeof(char));
+
+    if (word == NULL)
+        return NULL;
+    for (int i = 0; i < length; i++) {
+        word[i] = str[start + i];
+    }
+    word[length] = '\0';
+    return word;
+}
+
+int count_word(char *str)
+{
+    int word = 0;
+    int word_in = 0;
+    int is_alnum = 0;
 
     if (str == NULL)
         return 84;
     for (int i = 0; str[i]; i++) {
-        if (isalphanum(str[i]) && (i == 0 || isnonalphanum(str[i - 1]))) {
-            count++;
+        is_alnum = ((str[i] >= 'a' && str[i] <= 'z') ||
+            (str[i] >= 'A' && str[i] <= 'Z') ||
+            (str[i] >= '0' && str[i] <= '9'));
+        if (is_alnum && !word_in) {
+            word++;
+            word_in = 1;
+        }
+        if (!is_alnum) {
+            word_in = 0;
         }
     }
-    return count;
+    return word;
 }
 
-char **my_str_to_word_array(const char *str)
+int while_kskip(char *str, int k)
 {
-    int i = 0;
-    int start = -1;
-    int end;
-    char **tab = malloc(sizeof(char *) * (count_word(str) + 1));
+    while (my_isalphanum(str[k]))
+        k++;
+    return k;
+}
 
-    if (tab == NULL || str == NULL)
+char *word_in_array(char *str, int k)
+{
+    int start = k;
+    int end = 0;
+    char *new_str = NULL;
+
+    k = while_kskip(str, k);
+    end = k;
+    new_str = allocate_word(str, start, end);
+    if (new_str == NULL)
+        return NULL;
+    k--;
+    return new_str;
+}
+
+char **my_str_to_word_array(char *str)
+{
+    int words = count_word(str);
+    char **tab = NULL;
+    int i = 0;
+
+    if (str == NULL)
+        return NULL;
+    tab = malloc((words + 1) * sizeof(char *));
+    if (tab == NULL)
         return NULL;
     for (int k = 0; str[k] != '\0'; k++) {
-        if (isalphanum(str[k]) && (k == 0 || isnonalphanum(str[k - 1])))
-            start = k;
-        if (start != -1 && (str[k + 1] == '\0' || isnonalphanum(str[k + 1]))) {
-            end = k + 1;
-            tab[i] = my_strndup(str + start, end - start);
+        if (my_isalphanum(str[k]) && (k == 0 ||
+            my_isnonalphanum(str[k - 1]))) {
+            tab[i] = word_in_array(str, k);
             i++;
-            start = -1;
         }
     }
     tab[i] = NULL;

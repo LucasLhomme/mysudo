@@ -42,7 +42,8 @@ LIB =	./check_strisnum.c\
 	./flag_s.c\
 	./flag_x.c\
 	./flag_x2.c\
-	./my_printf.c
+	./my_printf.c\
+	./my_strcmp.c
 
 
 OBJ_LIB  	=	 $(LIB:.c=.o)

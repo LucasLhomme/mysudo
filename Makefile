@@ -11,6 +11,7 @@ CFLAGS += -Wall -Wextra -W -Iinclude -Isrc/lib/include
 
 SRC =	./src/my_sudo.c \
 		./src/parse_file.c \
+		./src/check_group.c
 
 OBJ  	=	 $(SRC:.c=.o)
 
