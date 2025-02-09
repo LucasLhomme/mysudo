@@ -27,7 +27,6 @@ char *extract_username(char *line, int uid);
 char *get_username(int uid);
 node_t *parse_line(char *line, char *user);
 node_t *create_node(char *hashed_pwd);
-int handle_error(int argc);
 int main(int argc, char **argv);
 char **user_group(char *user);
 char **parse_sudoers(void);

@@ -48,7 +48,7 @@ char *get_username(int uid)
     return result;
 }
 
-int handle_error(int argc)
+static int handle_error(int argc)
 {
     if (argc < 2)
         return 84;
@@ -62,11 +62,9 @@ int execute_help(void)
     return 0;
 }
 
-int main(int argc, char **argv)
+int authenticate_user(int argc, char **argv, char *user)
 {
-    uid_t uid = getuid();
-    char *user = get_username(uid);
-    char **groups = NULL;
+    char **groups;
 
     if (handle_error(argc) == 84)
         return 84;
@@ -75,19 +73,30 @@ int main(int argc, char **argv)
         execute_help();
         return 0;
     }
-    my_printf("n'a pas encore créer les groupes\n");
     groups = parse_sudoers();
     if (check_group(groups, user) != 0) {
         my_printf("permission denied\n");
         return 84;
     }
-    my_printf("l'a créer\n");
-    if (verify_password(user) == 0) {
-        my_printf("Authentication successful!\n");
-    } else {
+    if (verify_password(user) != 0) {
         my_printf("Authentication failed.\n");
         return 0;
     }
+    my_printf("Authentication successful!\n");
+    return 1;
+}
+
+int main(int argc, char **argv)
+{
+    uid_t uid;
+    char *user;
+    int auth_result;
+
+    uid = getuid();
+    user = get_username(uid);
+    auth_result = authenticate_user(argc, argv, user);
+    if (auth_result != 1)
+        return auth_result;
     if (setuid(0) != 0)
         return 84;
     execvp(argv[1], &argv[1]);

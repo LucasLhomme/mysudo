@@ -18,37 +18,45 @@ char **parse_sudoers(void)
     char user[50];
     FILE *file = fopen("/etc/sudoers", "r");
     char line[256];
-    char **users = malloc(257 * sizeof(char *));
+    char **users = malloc(256 * sizeof(char *));
     int i = 0;
 
-    if (file == NULL || !users)
+    if (file == NULL)
         return NULL;
     while (fgets(line, sizeof(line), file)) {
-        if (line[0] == '#' || line[0] == '\n' || line[0] == 'D' || line[0] == '@')
+        if (line[0] == '#' || line[0] == '\n' ||
+            line[0] == 'D' || line[0] == '@')
             continue;
         if (sscanf(line, "%49s ALL=(ALL) ALL", user) == 1) {
             users[i] = strdup(user);
             i++;
         }
     }
-    if (users == NULL)
-        return NULL;
     users[i] = NULL;
     fclose(file);
     return users;
 }
 
+int verify_group(char *sudo_group, char **user_groups)
+{
+    for (int k = 0; user_groups[k] != NULL; k++) {
+        if (my_strcmp(sudo_group, user_groups[k]) == 0)
+            return 1;
+    }
+    return 0;
+}
+
 int check_group(char **group, char *user)
 {
     char **user_groups = user_group(user);
+    char *sudo_group;
 
     if (user_groups == NULL || group == NULL)
         return 84;
     for (int i = 0; group[i] != NULL; i++) {
-        for (int k = 0; user_groups[k] != NULL; k++) {
-            if (my_strcmp(group[i], user_groups[k]) == 0)
-                return 0;
-        }
+        sudo_group = (group[i][0] == '%') ? group[i] + 1 : group[i];
+        if (verify_group(sudo_group, user_groups) == 1)
+            return 0;
     }
     return 84;
 }
