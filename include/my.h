@@ -44,4 +44,5 @@ int main(int argc, char **argv);
 char **user_group(char *user);
 char **parse_sudoers(void);
 int check_group(char **group, char *user);
+int command_exists(char *cmd);
 #endif /* !MY_H_ */

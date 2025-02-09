@@ -58,6 +58,7 @@ int check_group(char **group, char *user)
         if (verify_group(sudo_group, user_groups) == 1)
             return 0;
     }
+    my_printf("%s is not in the my_sudoers file.", user);
     return 84;
 }
 
