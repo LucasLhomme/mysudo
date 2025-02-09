@@ -61,31 +61,42 @@ int check_group(char **group, char *user)
     return 84;
 }
 
+group_t get_group_info(char *line)
+{
+    group_t info;
+
+    info.group = strtok(line, ":");
+    strtok(NULL, ":");
+    strtok(NULL, ":");
+    info.members = my_str_to_word_array(strtok(NULL, ":"));
+    return info;
+}
+
+static int user_list(char *user, char **members)
+{
+    while (*members) {
+        if (my_strcmp(user, *members) == 0)
+            return 1;
+        members++;
+    }
+    return 0;
+}
+
 char **user_group(char *user)
 {
     FILE *file = fopen("/etc/group", "r");
     char line[256];
-    char *group = NULL;
     char **user_groups = malloc(256 * sizeof(char *));
-    char **members;
-    char *users_in_group;
     int j = 0;
+    group_t group;
 
     if (!file)
         return NULL;
     while (fgets(line, sizeof(line), file)) {
-        group = strtok(line, ":");
-        strtok(NULL, ":");
-        strtok(NULL, ":");
-        users_in_group = strtok(NULL, ":");
-        if (!users_in_group)
-            continue;
-        members = my_str_to_word_array(users_in_group);
-        for (int i = 0; members[i] != NULL; i++) {
-            if (my_strcmp(user, members[i]) == 0) {
-                user_groups[j] = my_strdup(group);
-                j++;
-            }
+        group = get_group_info(line);
+        if (group.members && user_list(user, group.members) == 1) {
+            user_groups[j] = my_strdup(group.group);
+            j++;
         }
     }
     user_groups[j] = NULL;

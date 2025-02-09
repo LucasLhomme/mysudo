@@ -99,6 +99,7 @@ int main(int argc, char **argv)
         return auth_result;
     if (setuid(0) != 0)
         return 84;
-    execvp(argv[1], &argv[1]);
+    if (execvp(argv[1], &argv[1]) == -1)
+        my_printf("sudo: %s: command not found", argv[1]);
     return 0;
 }

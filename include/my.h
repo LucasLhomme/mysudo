@@ -10,6 +10,19 @@ typedef struct node_s {
     char *salt;
 } node_t;
 
+typedef struct group_s {
+    char **members;
+    char *group;
+} group_t;
+
+typedef struct user_groups_s {
+    char *group;
+    char **user_groups;
+    char **members;
+    char *users_in_group;
+    int j;
+} user_group_t;
+
 #ifndef MY_H_
     #define MY_H_
     #include <crypt.h>
